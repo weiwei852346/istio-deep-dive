@@ -14,7 +14,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
 }
 ```
 我们先来看一下实际例子：
-![example](Pasted image 20230426150133.png)
+![example](example.png)
 我们知道pod中的enovy sidecar是通过iptable将入口流量重定向到了15006端口，由envoy代理，最后再转发到服务中。在[-Istio 中的 Sidecar 注入、透明流量劫持及流量路由过程详解](https://jimmysong.io/blog/sidecar-injection-iptables-and-traffic-routing/)这篇文章中详细说明了inbound和outbound流量的代理流程，简单来说，外部流量->iptables劫持匹配入站规则->envoy inbound 15006->匹配route，再找到cluster->iptable劫持匹配出站规则，假设源地址为127.0.0.6->透传到pod内应用服务。这里不再赘述，本篇也只关注appendSidecarInboundListeners构建inbound listener流程，outbound listener后续再写。
 查看inbound listener的配置：
 ```json
