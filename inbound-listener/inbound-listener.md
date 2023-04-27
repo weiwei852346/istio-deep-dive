@@ -204,7 +204,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
    ServicePort *Port          `json:"servicePort,omitempty"`  
    Endpoint    *IstioEndpoint `json:"endpoint,omitempty"`  
  }
-   ```
+  ```
    同sidecarscope一样，也是从pushContext中找到node proxy相关的serviceInstances，node proxy中的serviceInstance是是个数组，或者是一个服务有多个端口，那么服务的每个端口都用一个serviceInstance去描述，也可能存在一个负载对应多个逻辑服务，这多个逻辑服务共用一个物理端口。随后serviceInstance将会转化成inboundChainConfig，然后被用于去生成inbound listener，如上面例子中inbound|9080||。
 3. inboundChainConfig中主要属性
    port 9080
