@@ -190,7 +190,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
    这也是和存在sidecar时生成inboundChainConfig的主要区别，存在sidecar时，则需要根据sidcar的ingress中配置的服务去生成。
    serviceInstances为node proxy中跑的业务服务的抽象，即默认的inbound listener会将目的设置为本地的业务服务中，但是如果用sidecar，就可以随便配，将inbound流量重定向到任意地方。
    这里的service instances也是istio中抽象的概念，定义如下
-   ```go
+```go
    // There are two reasons why this returns multiple ServiceInstances instead of one:  
 // - A ServiceInstance has a single IstioEndpoint which has a single Port.  But a Service  
 //   may have many ports.  So a workload implementing such a Service would need//   multiple ServiceInstances, one for each port.  
@@ -204,7 +204,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
    ServicePort *Port          `json:"servicePort,omitempty"`  
    Endpoint    *IstioEndpoint `json:"endpoint,omitempty"`  
  }
-  ```
+```
    同sidecarscope一样，也是从pushContext中找到node proxy相关的serviceInstances，node proxy中的serviceInstance是是个数组，或者是一个服务有多个端口，那么服务的每个端口都用一个serviceInstance去描述，也可能存在一个负载对应多个逻辑服务，这多个逻辑服务共用一个物理端口。随后serviceInstance将会转化成inboundChainConfig，然后被用于去生成inbound listener，如上面例子中inbound|9080||。
 3. inboundChainConfig中主要属性
    port 9080
@@ -257,7 +257,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
      - envoy.filters.http.router
     envoy.filters.http.router必须为最后一项，配置较为简单。
 8. 上面只是说了DESTINATION为Cluster: inbound|9080||的filter_chain生成，在virtualInbound filter中，还包括InboundPassthroughClusterIpv4这个filter_chain(*buildInboundPassthroughChains*)，服务发现为ORIGINAL_DST，透传请求原始目的地址，至于什么时候会用到？有一种情况，即k8s没有创建服务service，此时istio不会探测到service，也不会下发上面的 inbound|9080|| listerner规则，这时候我们如果直接在其他容器中用pod ip访问，则会命中这条规则，然后透传到业务服务中。
-   ```shell
+```shell
    [root@ocean bin]# ./istioctl pc clusters ratings-v1-85cc46b6d4-4kngk --fqdn InboundPassthroughClusterIpv4 -ojson
 [
     {
@@ -296,7 +296,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
         }
     }
 ]
-    ```
+```
 
 
 
