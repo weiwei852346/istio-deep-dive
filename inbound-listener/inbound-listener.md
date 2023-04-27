@@ -190,21 +190,21 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
    这也是和存在sidecar时生成inboundChainConfig的主要区别，存在sidecar时，则需要根据sidcar的ingress中配置的服务去生成。
    serviceInstances为node proxy中跑的业务服务的抽象，即默认的inbound listener会将目的设置为本地的业务服务中，但是如果用sidecar，就可以随便配，将inbound流量重定向到任意地方。
    这里的service instances也是istio中抽象的概念，定义如下
-```go
-   // There are two reasons why this returns multiple ServiceInstances instead of one:  
-// - A ServiceInstance has a single IstioEndpoint which has a single Port.  But a Service  
-//   may have many ports.  So a workload implementing such a Service would need//   multiple ServiceInstances, one for each port.  
-// - A single workload may implement multiple logical Services.  
-//  
-// In the second case, multiple services may be implemented by the same physical port number,  
-// though with a different ServicePort and IstioEndpoint for each.  If any of these overlapping// services are not HTTP or H2-based, behavior is undefined, since the listener may not be able to  
-// determine the intended destination of a connection without a Host header on the request.
- type ServiceInstance struct {  
-   Service     *Service       `json:"service,omitempty"`  
-   ServicePort *Port          `json:"servicePort,omitempty"`  
-   Endpoint    *IstioEndpoint `json:"endpoint,omitempty"`  
- }
-```
+   ```go
+        // There are two reasons why this returns multiple ServiceInstances instead of one:  
+	// - A ServiceInstance has a single IstioEndpoint which has a single Port.  But a Service  
+	//   may have many ports.  So a workload implementing such a Service would need//   multiple ServiceInstances, one for each port.  
+	// - A single workload may implement multiple logical Services.  
+	//  
+	// In the second case, multiple services may be implemented by the same physical port number,  
+	// though with a different ServicePort and IstioEndpoint for each.  If any of these overlapping// services are not HTTP or H2-based, behavior is undefined, since the listener may not be able to  
+	// determine the intended destination of a connection without a Host header on the request.
+	 type ServiceInstance struct {  
+	   Service     *Service       `json:"service,omitempty"`  
+	   ServicePort *Port          `json:"servicePort,omitempty"`  
+	   Endpoint    *IstioEndpoint `json:"endpoint,omitempty"`  
+	 }
+   ```
    同sidecarscope一样，也是从pushContext中找到node proxy相关的serviceInstances，node proxy中的serviceInstance是是个数组，或者是一个服务有多个端口，那么服务的每个端口都用一个serviceInstance去描述，也可能存在一个负载对应多个逻辑服务，这多个逻辑服务共用一个物理端口。随后serviceInstance将会转化成inboundChainConfig，然后被用于去生成inbound listener，如上面例子中inbound|9080||。
 3. inboundChainConfig中主要属性
    port 9080
