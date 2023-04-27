@@ -214,7 +214,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
 5. 首先filters的设置，位于*lb.buildInboundNetworkFiltersForHTTP(cc)*。先判断协议，如果为http，需要构建一些网络过滤器，其他网络过滤器先略过，最重要的为http_connection_manager且必须位于最后一项，为tcp流程较为简单，略过不谈。
 6. http_connection_manager流程较为简单清晰，其中的路由配置，在inbound listener中是静态配置的，参见上面的inbound listener例子中的virtualHost，其name即为inbound|http|端口，Domain为*，匹配所有，routes则为默认生成的路由，默认路由中最为关键的cluster配置也是通过端口自动构建出来的，cds cluster创建时，也遵循这个规则。
    需要注意的是，路由的配置并非内置死，是可以通过envoy filter对路由进行配置的，构建完inbound默认路由后，添加了envoy filter监测点(*buildSidecarInboundHTTPRouteConfig*中，`r = envoyfilter.ApplyRouteConfigurationPatches(networking.EnvoyFilter_SIDECAR_INBOUND, lb.node, efw, r)`)，对路由进行patch。envoy filter暂且不说，后续专门说下envoy filter的类型和编写，贴一下envoy filter的类型
-   ```go
+```go
    const (
 	EnvoyFilter_INVALID EnvoyFilter_ApplyTo = 0
 	// Applies the patch to the listener.
@@ -248,7 +248,7 @@ func (configgen *ConfigGeneratorImpl) buildSidecarListeners(builder *ListenerBui
 	// Applies the patch to the listener filter.
 	EnvoyFilter_LISTENER_FILTER EnvoyFilter_ApplyTo = 11
 )
-    ```
+```
 7. 除了rds配置，http_connection_mananger还需要添加http filters，包括
      - istio.metadata_exchange
      - envoy.filters.http.fault
